@@ -1,0 +1,51 @@
+{
+  "name": "simple-html-to-pdf",
+  "version": "0.1.0",
+  "author": "anvk",
+  "main": "index.js",
+  "description": "Quick CLI command for converting HTML (from URL) to PDF",
+  "contributors": [
+    {
+      "name": "Alexey Novak",
+      "email": "alexey.novak.mail@gmail.com"
+    }
+  ],
+  "scripts": {
+    "lint": "eslint src",
+    "build": "rimraf dist/ && babel src/ --out-dir dist/"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:anvk/simple-html-to-pdf.git"
+  },
+  "bugs": {
+    "url": "https://github.com/anvk/simple-html-to-pdf/issues"
+  },
+  "homepage": "http://github.com/anvk/simple-html-to-pdf",
+  "keywords": [
+    "PDF",
+    "HTML",
+    "conversion"
+  ],
+  "dependencies": {
+    "chalk": "^1.1.3",
+    "minimist": "1.2.0",
+    "phantom": "3.2.0",
+    "phantom-html-to-pdf": "0.4.9"
+  },
+  "devDependencies": {
+    "babel": "5.6.5",
+    "babel-eslint": "5.0.0",
+    "chai": "3.0.0",
+    "eslint": "2.2.0",
+    "eslint-config-airbnb": "6.0.2",
+    "mocha": "2.2.5",
+    "rimraf": "2.5.2"
+  },
+  "engine": "node >= 0.10.x",
+  "private": false,
+  "license": "MIT"
+}
