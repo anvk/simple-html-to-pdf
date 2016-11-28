@@ -1,6 +1,9 @@
 {
   "name": "simple-html-to-pdf",
-  "version": "0.1.0",
+  "bin": {
+    "simple-html-to-pdf": "index.js"
+  },
+  "version": "0.1.1",
   "author": "anvk",
   "main": "index.js",
   "description": "Quick CLI command for converting HTML (from URL) to PDF",
