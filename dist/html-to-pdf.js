@@ -4,9 +4,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _phantom = require('phantom');
+var _nodePhantomAsync = require('node-phantom-async');
 
-var _phantom2 = _interopRequireDefault(_phantom);
+var _nodePhantomAsync2 = _interopRequireDefault(_nodePhantomAsync);
 
 var _fs = require('fs');
 
@@ -16,11 +16,12 @@ var _chalk = require('chalk');
 
 var _chalk2 = _interopRequireDefault(_chalk);
 
+var _promise = require('promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
 var argv = require('minimist')(process.argv.slice(2));
 var conversion = require('phantom-html-to-pdf')();
-
-var _ph = undefined;
-var _page = undefined;
 
 var url = argv.url;
 var file = argv.file;
@@ -28,16 +29,19 @@ var _argv$verbose = argv.verbose;
 var verbose = _argv$verbose === undefined ? false : _argv$verbose;
 var _argv$fitToPage = argv.fitToPage;
 var fitToPage = _argv$fitToPage === undefined ? false : _argv$fitToPage;
+var _argv$phantomDelay = argv.phantomDelay;
+var phantomDelay = _argv$phantomDelay === undefined ? 200 : _argv$phantomDelay;
+var printDelay = argv.printDelay;
 
 if (!url || !file) {
   console.log(_chalk2['default'].red('Some of the arguments are missing.'));
-  console.log(_chalk2['default'].red('Usage: simple-html-to-pdf --url="http://www.somewebsite.com" --file="/tmp/my.pdf" [--verbose] [--fitToPage]'));
+  console.log(_chalk2['default'].red('Usage: simple-html-to-pdf --url="http://www.somewebsite.com" --file="/tmp/my.pdf" [--verbose] [--fitToPage] [--phantomDelay] [--printDelay]'));
   console.log(_chalk2['default'].red('Exiting...'));
   console.log('\n');
   process.exit(0);
 }
 
-var conversionOptions = { fitToPage: fitToPage };
+var conversionOptions = { fitToPage: fitToPage, printDelay: printDelay };
 
 function myConsole(message) {
   var verbose = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
@@ -47,32 +51,57 @@ function myConsole(message) {
   }
 }
 
-_phantom2['default'].create().then(function (ph) {
-  _ph = ph;
-  return _ph.createPage();
+var self = {};
+
+_nodePhantomAsync2['default'].create().bind({}).then(function (ph) {
+  self.ph = ph;
+  return ph.createPage();
 }).then(function (page) {
-  _page = page;
-  return _page.open(url);
+  self.page = page;
+  return page.open(url);
 }).then(function (status) {
   myConsole(status, verbose);
-  return _page.property('content');
-}).then(function (content) {
+  console.log(_chalk2['default'].bold.cyan('Going to wait ' + phantomDelay + ' milliseconds...'));
+  return self.page.get('content');
+}).delay(phantomDelay) // Wait for AJAX content to load on the page.
+.then(function (content) {
   myConsole(content, verbose);
-  _page.close();
-  _ph.exit();
 
   conversionOptions = _extends({}, conversionOptions, { html: content });
 
-  conversion(conversionOptions, function (err, pdf) {
-    myConsole(pdf.logs, verbose);
-    myConsole(pdf.numberOfPages, verbose);
-    pdf.stream.pipe(_fs2['default'].createWriteStream(file));
+  return new _promise2['default'](function (resolve, reject) {
+    conversion(conversionOptions, function (err, pdf) {
+      if (err) {
+        console.log(_chalk2['default'].red(err));
+        conversion.kill();
+        return reject(err);
+      }
 
-    conversion.kill();
+      myConsole(pdf.logs, verbose);
+      myConsole(pdf.numberOfPages, verbose);
+      var stream = pdf.stream.pipe(_fs2['default'].createWriteStream(file));
+      stream.on('finish', function () {
+        conversion.kill();
+        console.log(_chalk2['default'].bold.cyan('Conversion success!'));
+        resolve();
+      });
 
-    console.log(_chalk2['default'].bold.cyan('Conversion success!'));
+      stream.on('error', function (error) {
+        console.error(_chalk2['default'].red('Failed to write a file...'));
+        console.error(_chalk2['default'].red(error));
+        conversion.kill();
+
+        reject(error);
+      });
+    });
   });
 })['catch'](function (error) {
   console.error(_chalk2['default'].red('Conversion failed...'));
   console.error(_chalk2['default'].red(error));
+})['finally'](function () {
+  console.log(_chalk2['default'].bold.cyan('Going to close Phantom'));
+  return self.ph.exit();
+})['finally'](function () {
+  console.log(_chalk2['default'].bold.cyan('Going to exit the process'));
+  process.exit();
 });
