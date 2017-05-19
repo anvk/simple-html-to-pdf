@@ -4,7 +4,7 @@
     "simple-html-to-pdf": "./bin/simple-html-to-pdf"
   },
   "preferGlobal": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "anvk",
   "main": "index.js",
   "description": "Quick CLI command for converting HTML (from URL) to PDF",
@@ -35,10 +35,12 @@
     "conversion"
   ],
   "dependencies": {
-    "chalk": "^1.1.3",
+    "chalk": "1.1.3",
     "minimist": "1.2.0",
-    "phantom": "3.2.0",
-    "phantom-html-to-pdf": "0.4.9"
+    "node-phantom-async": "1.3.3",
+    "phantom": "4.0.3",
+    "phantom-html-to-pdf": "0.4.9",
+    "promise": "7.1.1"
   },
   "devDependencies": {
     "babel": "5.6.5",
