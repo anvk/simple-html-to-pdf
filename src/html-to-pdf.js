@@ -46,9 +46,15 @@ phantom.create()
 .then((status) => {
   myConsole(status, verbose);
   console.log(chalk.bold.cyan(`Going to wait ${phantomDelay} milliseconds...`));
-  return self.page.get('content');
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log(chalk.bold.cyan('Wait finished.'));
+      self.page.get('content')
+        .then(resolve)
+        .catch(reject);
+    }, phantomDelay);
+  });
 })
-.delay(phantomDelay) // Wait for AJAX content to load on the page.
 .then((content) => {
   myConsole(content, verbose);
 

@@ -62,9 +62,13 @@ _nodePhantomAsync2['default'].create().bind({}).then(function (ph) {
 }).then(function (status) {
   myConsole(status, verbose);
   console.log(_chalk2['default'].bold.cyan('Going to wait ' + phantomDelay + ' milliseconds...'));
-  return self.page.get('content');
-}).delay(phantomDelay) // Wait for AJAX content to load on the page.
-.then(function (content) {
+  return new _promise2['default'](function (resolve, reject) {
+    setTimeout(function () {
+      console.log(_chalk2['default'].bold.cyan('Wait finished.'));
+      self.page.get('content').then(resolve)['catch'](reject);
+    }, phantomDelay);
+  });
+}).then(function (content) {
   myConsole(content, verbose);
 
   conversionOptions = _extends({}, conversionOptions, { html: content });
