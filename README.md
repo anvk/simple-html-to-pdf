@@ -16,7 +16,7 @@ $ npm install -g simple-html-to-pdf
 ## Usage
 
 ```
-simple-html-to-pdf --url="http://www.somewebsite.com" --file="/tmp/my.pdf" [--verbose] [--fitToPage]
+simple-html-to-pdf --url="http://www.somewebsite.com" --file="/tmp/my.pdf" [--verbose] [--fitToPage] [--phantomDelay] [--printDelay]
 ```
 
 ## License
